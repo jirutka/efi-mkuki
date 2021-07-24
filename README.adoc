@@ -37,6 +37,8 @@ tar -xzf {proj-name}-{version}.tar.gz
 cd {proj-name}-{version}
 make install DESTDIR=/ prefix=/usr/local
 
+...or just download the link:https://raw.githubusercontent.com/{gh-name}/master/{proj-name}[{proj-name}] script directly.
+
 
 == Usage
 
