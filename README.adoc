@@ -1,0 +1,55 @@
+= EFI Unified Kernel Image Maker
+:proj-name: efi-mkuki
+:gh-name: jirutka/{proj-name}
+:version: 0.0.0
+
+{proj-name} is a simple script for creating an https://systemd.io/BOOT_LOADER_SPECIFICATION/[EFI Unified Kernel Image] footnote:[It has been specified by the systemd (read as SystemDisaster) project, but you don’t have to use systemd-boot or any other systemd component to get the benefits of Unified Kernel Image.] -- a single EFI PE executable combining an EFI stub loader, a kernel image (vmlinuz), the kernel command line, and optionally an initramfs image, CPU microcode update, and a splash image.
+
+Unified Kernel Image is basically an EFI application with all the components necessary for booting Linux directly from UEFI instead of relying on a bootloader.
+This image can be easily signed for Secure Boot.
+
+To learn more about Secure Boot and why signing just a kernel image (when you use initramfs) is not sufficient, I recomend reading https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot[Secure Boot on Arch Linux Wiki].
+
+
+== Requirements
+
+* http://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html[POSIX-sh] compatible shell (e.g. Busybox ash, dash, ZSH, bash, …)
+* `cat`, `grep`, `sed`, `tr` (BSD, Busybox or GNU)
+* `objcopy` from https://www.gnu.org/software/binutils/[GNU binutils]
+* EFI stub for your machine architecture from https://cgit.freedesktop.org/gummiboot/tree/?id=2bcd919c681c952eb867ef1bdb458f1bc49c2d55[gummiboot] footnote:[Gummiboot is referred to as obsolete because it was absorbed by systemd. Gummiboot EFI stubs are still useful though. You can download source tarball https://dev.alpinelinux.org/archive/gummiboot/gummiboot-48.1.tar.gz[gummiboot-48.1.tar.gz] (ff9a1632a82b1bef3434718e2aadca8783943f59) from Alpine Linux Archive.] or systemd
+
+
+== Installation
+
+=== On Alpine Linux
+
+Install package {proj-name} from the Alpine’s Edge community repository:
+
+[source, sh, subs="+attributes"]
+apk add {proj-name}
+
+
+=== From Tarball
+
+[source, sh, subs="+attributes"]
+wget https://github.com/{gh-name}/archive/v{version}/{proj-name}-{version}.tar.gz
+tar -xzf {proj-name}-{version}.tar.gz
+cd {proj-name}-{version}
+make install DESTDIR=/ prefix=/usr/local
+
+
+== Usage
+
+See the help section in link:{proj-name}#L3[{proj-name}] (or run `{proj-name} -h`).
+
+
+== Resources
+
+* https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot[Unified Extensible Firmware Interface/Secure Boot] on Arch Linux Wiki
+* https://wiki.gentoo.org/wiki/User:Sakaki/Sakaki%27s_EFI_Install_Guide/Configuring_Secure_Boot[Sakaki’s EFI Install Guide/Configuring Secure Boot] on Gentoo Wiki
+
+
+== License
+
+This project is licensed under http://opensource.org/licenses/MIT/[MIT License].
+For the full text of the license, see the link:LICENSE[LICENSE] file.
