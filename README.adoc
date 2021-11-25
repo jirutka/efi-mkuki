@@ -23,7 +23,7 @@ To learn more about Secure Boot and why signing just a kernel image (when you us
 
 === On Alpine Linux
 
-Install package {proj-name} from the Alpine’s Edge community repository:
+Install package https://pkgs.alpinelinux.org/packages?name={proj-name}[{proj-name}] on Alpine Linux v3.15 or later:
 
 [source, sh, subs="+attributes"]
 apk add {proj-name}
