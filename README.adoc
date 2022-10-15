@@ -51,6 +51,8 @@ make install DESTDIR=/ prefix=/usr/local
 
 ...or just download the link:https://raw.githubusercontent.com/{gh-name}/master/{proj-name}[{proj-name}] script directly.
 
+*NOTE*: {proj-name} expects EFI stubs in `/usr/lib/gummiboot`. This can be rewritten to another path via `EFISTUB_DIR` variable passed to `make install`. If `/usr/lib/systemd/boot/efi/` directory exists, `make install` will use it automatically.
+
 
 == Usage
 
