@@ -9,6 +9,13 @@ SED         := sed
 
 MAKEFILE_PATH  = $(lastword $(MAKEFILE_LIST))
 
+ifndef $(EFISTUB_DIR)
+  # If /usr/lib/systemd/boot/efi/ exists, rewrite /usr/lib/gummiboot to this.
+  ifneq ($(wildcard /usr/lib/systemd/boot/efi/.),)
+    EFISTUB_DIR := /usr/lib/systemd/boot/efi
+  endif
+endif
+
 
 #: Print list of targets.
 help:
