@@ -41,7 +41,7 @@ fi
 
 PROGNAME='efi-mkuki'
 VERSION='0.1.0'
-EFISTUB_DIR='/usr/lib/gummiboot'
+EFISTUB_DIR='/usr/lib/systemd/boot/efi/'
 
 help() {
 	sed -n '/^#---help---/,/^#---help---/p' "$0" | sed 's/^# \?//; 1d;$d;'
