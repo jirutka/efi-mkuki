@@ -98,6 +98,14 @@ cmdline="$tmpdir/cmdline"
 
 linux=$1; shift
 
+# Kernel sizes can sometimes be larger than 16MiB; cacluate a safe location for
+# the initrd.
+kernel_offset='0x2000000'
+kernel_size="$(stat -c '%s' "$linux")"
+# Initrd offset is the first page-aligned (0x...000) address that's 0x1000000
+# (16MiB) from the end of the kernel.
+initrd_offset="0x$(printf '%x\n' "$(( ( 1 + ( 0x1000000 + $kernel_offset + $kernel_size ) / 0x1000) * 0x1000 ))")"
+
 initrd=${1:-"/dev/null"}
 if [ $# -gt 1 ]; then
 	initrd="$tmpdir/initrd"
@@ -107,9 +115,12 @@ fi
 [ "$output" ] || output="$linux.efi"
 
 objcopy \
-	--add-section .osrel="$osrel"     --change-section-vma .osrel=0x20000    \
-	--add-section .cmdline="$cmdline" --change-section-vma .cmdline=0x30000  \
-	--add-section .splash="$splash"   --change-section-vma .splash=0x40000   \
-	--add-section .linux="$linux"     --change-section-vma .linux=0x2000000  \
-	--add-section .initrd="$initrd"   --change-section-vma .initrd=0x3000000 \
+	--add-section .osrel="$osrel"     --change-section-vma .osrel=0x20000 \
+	--add-section .cmdline="$cmdline" --change-section-vma .cmdline=0x30000 \
+	--add-section .splash="$splash"   --change-section-vma .splash=0x40000 \
+	--add-section .linux="$linux"     --change-section-vma ".linux=$kernel_offset"  \
+	--add-section .initrd="$initrd"   --change-section-vma ".initrd=$initrd_offset" \
 	"$efistub" "$output"
+
+# This corrects putting sections below the base image of the stub.
+objcopy --adjust-vma 0 "$output"
