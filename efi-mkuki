@@ -40,7 +40,7 @@ if ( set -o pipefail 2>/dev/null ); then
 fi
 
 PROGNAME='efi-mkuki'
-VERSION='0.1.0'
+VERSION='0.1.1'
 EFISTUB_DIR='/usr/lib/gummiboot'
 
 help() {

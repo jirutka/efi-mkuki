@@ -1,7 +1,7 @@
 = EFI Unified Kernel Image Maker
 :proj-name: efi-mkuki
 :gh-name: jirutka/{proj-name}
-:version: 0.1.0
+:version: 0.1.1
 
 {proj-name} is a simple script for creating an https://systemd.io/BOOT_LOADER_SPECIFICATION/[EFI Unified Kernel Image] footnote:[It has been specified by the systemd (read as SystemDisaster) project, but you don’t have to use systemd-boot or any other systemd component to get the benefits of Unified Kernel Image.] -- a single EFI PE executable combining an EFI stub loader, a kernel image (vmlinuz), the kernel command line, and optionally an initramfs image, CPU microcode update, and a splash image.
 
