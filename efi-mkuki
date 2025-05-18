@@ -42,6 +42,7 @@ fi
 PROGNAME='efi-mkuki'
 VERSION='0.1.1'
 EFISTUB_DIR='/usr/lib/gummiboot'
+ALIGNMENT=4096  # bytes
 
 help() {
 	sed -n '/^#---help---/,/^#---help---/p' "$0" | sed 's/^# \?//; 1d;$d;'
@@ -52,11 +53,22 @@ die() {
 	exit 2
 }
 
+# Prints value of the specified variable $1.
+getval() {
+	eval "printf '%s\n' \"\$$1\""
+}
+
+# Calculate the next offset by aligning the size $2 to the $ALIGNMENT boundary
+# and adding the current offset $1.
+next_offset() {
+	printf '%d' "$(( $1 + ( ($2 + $ALIGNMENT - 1) / $ALIGNMENT * $ALIGNMENT) ))"
+}
+
 # Defaults
 cmdline=/proc/cmdline
 output=
 osrel=/etc/os-release
-splash=/dev/null
+splash=
 efistub=
 
 while getopts ':c:o:r:s:S:hV' OPT; do
@@ -98,14 +110,6 @@ cmdline="$tmpdir/cmdline"
 
 linux=$1; shift
 
-# Kernel sizes can sometimes be larger than 16MiB; cacluate a safe location for
-# the initrd.
-kernel_offset='0x2000000'
-kernel_size="$(stat -c '%s' "$linux")"
-# Initrd offset is the first page-aligned (0x...000) address that's 0x1000000
-# (16MiB) from the end of the kernel.
-initrd_offset="0x$(printf '%x\n' "$(( ( 1 + ( 0x1000000 + $kernel_offset + $kernel_size ) / 0x1000) * 0x1000 ))")"
-
 initrd=${1:-"/dev/null"}
 if [ $# -gt 1 ]; then
 	initrd="$tmpdir/initrd"
@@ -114,13 +118,29 @@ fi
 
 [ "$output" ] || output="$linux.efi"
 
-objcopy \
-	--add-section .osrel="$osrel"     --change-section-vma .osrel=0x20000 \
-	--add-section .cmdline="$cmdline" --change-section-vma .cmdline=0x30000 \
-	--add-section .splash="$splash"   --change-section-vma .splash=0x40000 \
-	--add-section .linux="$linux"     --change-section-vma ".linux=$kernel_offset"  \
-	--add-section .initrd="$initrd"   --change-section-vma ".initrd=$initrd_offset" \
-	"$efistub" "$output"
+# Take the size and offset of the last EFI stub section to compute the next
+# section offset.
+offset="$(objdump -h -w "$efistub" | awk 'END {
+	vma = ("0x"$4) + 0;
+	size = ("0x"$3) + 0;
+	print vma + size
+}')"
+test "$offset" -eq "$offset" 2>/dev/null \
+	|| die 'failed to resolve EFI stub offset!'
+offset="$(next_offset 0 "$offset")"  # align offset
+
+objcopy_opts=''
+for section in osrel cmdline splash linux initrd; do
+	filename="$(getval "$section")"
+	[ "$filename" ] || continue
+
+	objcopy_opts="$objcopy_opts --add-section \".$section=$filename\" --change-section-vma \".$section=$offset\""
+	size="$(stat -Lc '%s' "$filename")"
+	offset="$(next_offset "$offset" "$size")"
+done
+
+eval set -- "$objcopy_opts"
+objcopy "$@" "$efistub" "$output"
 
 # This corrects putting sections below the base image of the stub.
 objcopy --adjust-vma 0 "$output"
