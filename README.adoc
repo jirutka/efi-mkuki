@@ -16,7 +16,7 @@ To learn more about Secure Boot and why signing just a kernel image (when you us
 * http://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html[POSIX-sh] compatible shell (e.g. Busybox ash, dash, ZSH, bash, …)
 * `awk`, `cat`, `grep`, `sed`, `tr` (BSD, Busybox or GNU)
 * `objcopy` and `objdump` from https://www.gnu.org/software/binutils/[GNU binutils]
-* EFI stub for your machine architecture from https://cgit.freedesktop.org/gummiboot/tree/?id=2bcd919c681c952eb867ef1bdb458f1bc49c2d55[gummiboot] footnote:[Gummiboot is referred to as obsolete because it was absorbed by systemd. Gummiboot EFI stubs are still useful though. You can download source tarball https://dev.alpinelinux.org/archive/gummiboot/gummiboot-48.1.tar.gz[gummiboot-48.1.tar.gz] (ff9a1632a82b1bef3434718e2aadca8783943f59) from Alpine Linux Archive.] or systemd
+* EFI stub for your machine architecture from https://www.freedesktop.org/software/systemd/man/latest/systemd-stub.html[systemd-stub], https://github.com/puzzleos/stubby[Stubby bootloader] or similar
 
 
 == Installation
@@ -51,7 +51,7 @@ make install DESTDIR=/ prefix=/usr/local
 
 ...or just download the link:https://raw.githubusercontent.com/{gh-name}/master/{proj-name}[{proj-name}] script directly.
 
-*NOTE*: {proj-name} expects EFI stubs in `/usr/lib/gummiboot`. This can be rewritten to another path via `EFISTUB_DIR` variable passed to `make install`. If `/usr/lib/systemd/boot/efi/` directory exists, `make install` will use it automatically.
+*NOTE*: {proj-name} expects EFI stubs in `/usr/lib/systemd/boot/efi`. This can be rewritten to another path via `EFISTUB_DIR` variable passed to `make install`.
 
 
 == Usage

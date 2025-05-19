@@ -41,7 +41,7 @@ fi
 
 PROGNAME='efi-mkuki'
 VERSION='0.1.1'
-EFISTUB_DIR='/usr/lib/gummiboot'
+EFISTUB_DIR='/usr/lib/systemd/boot/efi'
 ALIGNMENT=4096  # bytes
 
 help() {

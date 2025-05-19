@@ -9,13 +9,6 @@ SED         := sed
 
 MAKEFILE_PATH  = $(lastword $(MAKEFILE_LIST))
 
-ifndef $(EFISTUB_DIR)
-  # If /usr/lib/systemd/boot/efi/ exists, rewrite /usr/lib/gummiboot to this.
-  ifneq ($(wildcard /usr/lib/systemd/boot/efi/.),)
-    EFISTUB_DIR := /usr/lib/systemd/boot/efi
-  endif
-endif
-
 
 #: Print list of targets.
 help:
@@ -27,7 +20,7 @@ help:
 install:
 	$(INSTALL) -d "$(DESTDIR)$(bindir)"
 	$(INSTALL) -m 755 $(SCRIPT_NAME) "$(DESTDIR)$(bindir)/$(SCRIPT_NAME)"
-	test -z "$(EFISTUB_DIR)" || $(SED) -i "s|/usr/lib/gummiboot|$(EFISTUB_DIR)|" "$(DESTDIR)$(bindir)/$(SCRIPT_NAME)"
+	test -z "$(EFISTUB_DIR)" || $(SED) -i "s|/usr/lib/systemd/boot/efi|$(EFISTUB_DIR)|" "$(DESTDIR)$(bindir)/$(SCRIPT_NAME)"
 
 #: Uninstall the script from $DESTDIR.
 uninstall:
