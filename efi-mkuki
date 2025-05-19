@@ -1,7 +1,7 @@
 #!/bin/sh
 # vim: set ts=4:
 #---help---
-# Usage: efi-mkuki [options] -k <kver> <vmlinuz> [<microcode>...] [<initrd>]
+# Usage: efi-mkuki [options] <vmlinuz> [<microcode>...] [<initrd>]
 #        efi-mkuki <-h | -V>
 #
 # Create an EFI Unified Kernel Image (UKI) - a single EFI PE executable
@@ -19,7 +19,8 @@
 #
 #   -k <version | file>  Kernel release ("uname -r" information), or location of
 #                        file with kernel release (if begins with "/" or ".").
-#                        This option is REQUIRED.
+#                        This is optional on x86 and x86_64 (if not specified,
+#                        it's parsed from <vmlinuz>), but required on others.
 #
 #   -o <file>            Write output into <file>. Defaults to <vmlinuz>.efi.
 #
@@ -68,6 +69,19 @@ next_offset() {
 	printf '%d' "$(( $1 + ( ($2 + $ALIGNMENT - 1) / $ALIGNMENT * $ALIGNMENT) ))"
 }
 
+kver_x86() {
+	local vmlinuz="$1"
+	# https://gitlab.archlinux.org/archlinux/mkinitcpio/mkinitcpio/-/blob/a6ef10d3f4f24029fc649686ba36f692d8575a7a/functions#L142-162
+	# https://www.kernel.org/doc/html/v6.7/arch/x86/boot.html
+	# https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/arch/x86/boot/header.S?h=v6.7
+	local offset; offset="$(od -An -j0x20E -dN2 "$vmlinuz")" || return
+	local kver="$(dd if="$vmlinuz" bs=1 count=127 skip="$(($offset + 0x200))" 2>/dev/null)"
+
+	# Read the first word from this string as the kernel version.
+	printf '%s' "${kver%% *}"
+}
+
+
 # Defaults
 cmdline=/proc/cmdline
 output=
@@ -92,7 +106,6 @@ done
 shift $((OPTIND - 1))
 
 [ $# -ge 1 ] || die "invalid number of arguments, see '$PROGNAME -h'"
-[ "$kver" ] || die 'missing required option -k'
 
 if ! [ "$efistub" ]; then
 	case "$(uname -m)" in
@@ -115,16 +128,20 @@ case "$cmdline" in
 esac
 cmdline="$tmpdir/cmdline"
 
+linux=$1; shift
+
 uname="$tmpdir/uname"
 case "$kver" in
+	'') case "$(uname -m)" in
+	    	i686 | x86 | x86_64) kver_x86 "$linux";;
+	    	*) die 'missing required option -k';;
+	    esac ;;
 	/* | .*) head -n 1 "$kver";;
 	*) printf '%s\n' "$kver";;
 esac > "$uname"
 
 grep -q '^[0-9]\+\.[0-9][0-9A-Za-z_.-]*$' "$uname" \
 	|| die "invalid kernel version (-k): $(cat "$uname")"
-
-linux=$1; shift
 
 initrd=${1:-"/dev/null"}
 if [ $# -gt 1 ]; then

@@ -14,7 +14,7 @@ To learn more about Secure Boot and why signing just a kernel image (when you us
 == Requirements
 
 * http://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html[POSIX-sh] compatible shell (e.g. Busybox ash, dash, ZSH, bash, …)
-* `awk`, `cat`, `grep`, `sed`, `tr` (BSD, Busybox or GNU)
+* `awk`, `cat`, `dd`, `grep`, `od`, `sed`, `tr` (BSD, Busybox or GNU)
 * `objcopy` and `objdump` from https://www.gnu.org/software/binutils/[GNU binutils]
 * EFI stub for your machine architecture from https://www.freedesktop.org/software/systemd/man/latest/systemd-stub.html[systemd-stub], https://github.com/puzzleos/stubby[Stubby bootloader] or similar
 
