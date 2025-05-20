@@ -86,7 +86,7 @@ kver_x86() {
 cmdline=/proc/cmdline
 output=
 osrel=/etc/os-release
-splash=
+splash=/dev/null
 efistub=
 kver=
 
@@ -165,7 +165,7 @@ offset="$(next_offset 0 "$offset")"  # align offset
 objcopy_opts=''
 for section in uname osrel cmdline splash linux initrd; do
 	filename="$(getval "$section")"
-	[ "$filename" ] || continue
+	[ "$filename" = '/dev/null' ] && continue
 
 	objcopy_opts="$objcopy_opts --add-section \".$section=$filename\" --change-section-vma \".$section=$offset\""
 	size="$(stat -Lc '%s' "$filename")"
