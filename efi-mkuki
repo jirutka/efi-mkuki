@@ -45,7 +45,7 @@ if ( set -o pipefail 2>/dev/null ); then
 fi
 
 PROGNAME='efi-mkuki'
-VERSION='0.1.1'
+VERSION='1.0.0'
 EFISTUB_DIR='/usr/lib/systemd/boot/efi'
 ALIGNMENT=4096  # bytes
 
