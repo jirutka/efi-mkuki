@@ -120,7 +120,17 @@ fi
 [ -f "$efistub" ] || die "EFI stub '$efistub' does not exist!"
 
 tmpdir=$(mktemp -dt $PROGNAME.XXXXXX)
-trap "rm -f $tmpdir/*; rmdir $tmpdir" EXIT HUP INT TERM
+
+cleanup() {
+	trap '' EXIT HUP INT TERM  # unset trap to avoid loop
+
+	if [ -d "$tmpdir" ]; then
+		rm -f "$tmpdir"/*
+		rmdir "$tmpdir"
+	fi
+}
+trap 'cleanup; exit 0' EXIT
+trap 'cleanup; exit 130' HUP INT TERM
 
 case "$cmdline" in
 	/* | .*) grep '^[^#]' "$cmdline" | tr -s '\n' ' ' > "$tmpdir"/cmdline;;
